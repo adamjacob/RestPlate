@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Restplate by adamjacob</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Restplate</h1>
+          <h2>Simple PHP Restful Router</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/adamjacob/RestPlate/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/adamjacob/RestPlate/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/adamjacob/RestPlate" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>RestPlate</h1>
+
+<p>A super simple PHP Restful Router. RestPlate takes a route (URL) an executes the appropriate method (controller) automatically. RestPlate was build with a RESTful API approach in mind, but not limited to. More specifically build for client side apps using javascript frameworks like <a href="https://github.com/documentcloud/backbone">Backbone</a> etc.</p>
+
+<h2>How it works</h2>
+
+<p>RestPlate takes a route (URL) an turns it into segments. It uses those segments to navigate itself to the correct method (controller).</p>
+
+<p><code>[GET] example.com/user/profile/1819</code>
+RestPlate will navigate to the <strong>user</strong> class (user.php) an look for a <strong>get_profile()</strong> method. It will pass the last segment of the url (1819) to the method.</p>
+
+<p><code>[POST] example.com/user/edit/1819</code>
+RestPlate will navigate to the <strong>user</strong> class (user.php) an look for a <strong>post_edit()</strong> method. It will pass the last segment of the url (1819) to the method.</p>
+
+<p><code>[GET] example.com/posts/</code> RestPlate will navigate to the <strong>posts</strong> class (posts.php) an look for a <strong>get_root()</strong> function.</p>
+
+<p><code>[GET] example.com</code> RestPlate will navigate to the <strong>base</strong> class (base.php) an look for a <strong>get_root()</strong> method. Info on changing the <strong>base</strong> classname see options section below.</p>
+
+<h3>Notes</h3>
+
+<p>Anytime a method with the prefix request type <code>get_user()</code> is not found, RestPlate will default to looking for <code>user()</code> before returning a 404.</p>
+
+<p>All requests without a method will automatically get forward to a root method.</p>
+
+<h2>Getting Started</h2>
+
+<ol>
+<li>Setup a URL rewrite to point all requests to your app router, (.htaccess) included.</li>
+<li>Include RestPlate <code>require 'RestPlate.php';</code>
+</li>
+<li>Define your app <code>$app = new RestPlate();</code>
+</li>
+<li>Initiate your app <code>$app-&gt;init();</code>
+</li>
+</ol><h2>Usage</h2>
+
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+
+<span class="k">require</span> <span class="s1">'RestPlate.php'</span><span class="p">;</span>
+
+    <span class="nv">$app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">RestPlate</span><span class="p">();</span>
+    <span class="nv">$app</span><span class="o">-&gt;</span><span class="na">init</span><span class="p">();</span>
+
+</pre></div>
+
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+
+<span class="k">class</span> <span class="nc">Great</span> <span class="p">{</span>
+
+    <span class="k">function</span> <span class="nf">me</span><span class="p">(</span><span class="nv">$name</span><span class="p">){</span>
+
+        <span class="k">return</span> <span class="k">array</span><span class="p">(</span> <span class="s1">'Hello, '</span> <span class="o">.</span> <span class="nv">$name</span> <span class="p">);</span>
+
+    <span class="p">}</span>
+
+<span class="p">}</span>
+
+</pre></div>
+
+<p>Now if we browse to <code>example.com/great/me/Adam</code> we will see "Hello, Adam". Which will be encode in JSON.</p>
+
+<h2>Filters</h2>
+
+<p>RestPlate supports before execution filters.  These are functions that will be executed before a method is executed.  These can be used for anything from checking users credentials to logging users requests.</p>
+
+<h3>Filter Usage</h3>
+
+<p>Using filters is pretty simple.  First add the filter to the RestPlate instance by using the <strong>addFilter()</strong> method as shown below. Then in the class where you want the filter to be applied, add a public <strong>$filter</strong> variable on the class.</p>
+
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+
+<span class="c1">// Add the filter to the RestPlate instance.</span>
+
+    <span class="nv">$app</span><span class="o">-&gt;</span><span class="na">addFilter</span><span class="p">(</span><span class="s2">"authCheck"</span><span class="p">,</span> <span class="k">function</span><span class="p">(){</span>
+
+        <span class="c1">// Check users credentials...</span>
+
+    <span class="p">});</span>
+
+</pre></div>
+
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+
+<span class="c1">// Add the filters array to our class.</span>
+
+    <span class="k">class</span> <span class="nc">User</span> <span class="p">{</span>
+
+        <span class="k">public</span> <span class="nv">$filters</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">'authCheck'</span><span class="p">);</span>
+
+        <span class="k">public</span> <span class="k">function</span> <span class="nf">edit</span><span class="p">(){</span>
+
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+
+</pre></div>
+
+<p>The <strong>$filter</strong> variable is an array, this allows you to apply multiple filters to a single class.</p>
+
+<h2>Options</h2>
+
+<p>RestPlate has a few options built in that you can change at runtime.</p>
+
+<p><code>$classPath</code> Where your class files are stored. <em>Default Null</em></p>
+
+<p><code>$json</code> Encode output in JSON format. <em>Default TRUE</em></p>
+
+<p><code>$baseClass</code> The class that index routes should resolve to. <em>Default 'base'</em></p>
+
+<h3>Changing Options</h3>
+
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+
+<span class="c1">// Our instance is defined as $app</span>
+
+    <span class="nv">$app</span><span class="o">-&gt;</span><span class="na">classPath</span> <span class="o">=</span> <span class="s1">'/controllers/'</span><span class="p">;</span>
+
+</pre></div>
+
+<p>Note: options must be changed before init() method is called.</p>
+
+<h2>Security Note</h2>
+
+<p>Its recommended that you use the <strong>classPath</strong> option an store all your classes in their own directory. Since RestPlates router is fully automated, this opens the door for someone to execute a method you do not want ran from a web request. By storing all your classes (controllers) in a specific directory, RestPlate will only execute classes from that directory. Stopping any unwanted method executions.</p>
+
+<h2>License</h2>
+
+<p>RestPlate is open-sourced software licensed under the MIT License.</p>
+        </section>
+
+        <footer>
+          Restplate is maintained by <a href="https://github.com/adamjacob">adamjacob</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+                  <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-40394551-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+      </div>
+    </div>
+  </body>
+</html>
